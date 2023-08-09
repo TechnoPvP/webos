@@ -1,6 +1,8 @@
 import { AppProps } from 'next/app';
 import Head from 'next/head';
-import './styles.css';
+import '../public/styles/global.scss';
+import '../public/styles/root.scss';
+import { FluentProvider, webDarkTheme } from '@fluentui/react-components';
 
 function CustomApp({ Component, pageProps }: AppProps) {
   return (
@@ -8,9 +10,15 @@ function CustomApp({ Component, pageProps }: AppProps) {
       <Head>
         <title>Welcome to web!</title>
       </Head>
-      <main className="app">
-        <Component {...pageProps} />
-      </main>
+
+      <FluentProvider
+        theme={webDarkTheme}
+        style={{ width: '100%', height: '100%' }}
+      >
+        <div className="app">
+          <Component {...pageProps} />
+        </div>
+      </FluentProvider>
     </>
   );
 }

@@ -1,0 +1,15 @@
+@import '@fluentui/react/dist/sass/References';
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+#__next,
+body,
+.app {
+  width: 100%;
+  height: 100%;
+}
