@@ -3,6 +3,7 @@ import Head from 'next/head';
 import '../public/styles/global.scss';
 import '../public/styles/root.scss';
 import { FluentProvider, webDarkTheme } from '@fluentui/react-components';
+import { FileSystemProvider } from '../lib/context/file-system/file-system.provider';
 
 function CustomApp({ Component, pageProps }: AppProps) {
   return (
@@ -15,9 +16,11 @@ function CustomApp({ Component, pageProps }: AppProps) {
         theme={webDarkTheme}
         style={{ width: '100%', height: '100%' }}
       >
-        <div className="app">
-          <Component {...pageProps} />
-        </div>
+        <FileSystemProvider>
+          <div className="app">
+            <Component {...pageProps} />
+          </div>
+        </FileSystemProvider>
       </FluentProvider>
     </>
   );

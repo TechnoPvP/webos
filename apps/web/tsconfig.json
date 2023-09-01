@@ -18,7 +18,7 @@
     ],
     "types": ["jest", "node"]
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "next-env.d.ts"],
+  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "next-env.d.ts", "../../libs/filesystem/src/lib/file-system.store.ts"],
   "exclude": [
     "node_modules",
     "jest.config.ts",

@@ -1,31 +1,18 @@
+import { DndContext } from '@dnd-kit/core';
 import Image from 'next/image';
-import React, {
+import {
+  DragEvent,
   FC,
   PropsWithChildren,
-  useState,
   useEffect,
-  useRef,
-  DragEvent,
   useMemo,
+  useRef,
+  useState,
 } from 'react';
 import Taskbar from '../Taskbar/Taskbar';
-import { Button } from '@fluentui/react-components';
-import { useDraggable, useDroppable, DndContext } from '@dnd-kit/core';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ScreenProps extends PropsWithChildren {}
-
-function throttle(func: any, delay: number) {
-  let lastCall = 0;
-  return function (...args: any) {
-    const now = new Date().getTime();
-    if (now - lastCall < delay) {
-      return;
-    }
-    lastCall = now;
-    return func(...args);
-  };
-}
 
 const DESKTOP_ICON_SIZE = 48;
 
@@ -54,19 +41,6 @@ const Box: FC = () => {
     console.log('Drag enter');
   };
 
-  const throttledDrag = useMemo(
-    () =>
-      throttle(({ clientX, clientY, targetWidth, targetHeight }: any) => {
-        console.log('Dragging');
-
-        setOffset((prev) => ({
-          x: clientX - targetWidth / 2,
-          y: clientY - targetHeight / 2,
-        }));
-      }, 2),
-    []
-  );
-
   const handleDrag = (event: DragEvent) => {
     const target = event.target as HTMLElement;
     const clientX = event.clientX;
@@ -77,7 +51,10 @@ const Box: FC = () => {
 
     if (!boxRef.current) return;
 
-    throttledDrag({ clientX, clientY, targetWidth, targetHeight });
+    setOffset((prev) => ({
+      x: clientX - targetWidth / 2,
+      y: clientY - targetHeight / 2,
+    }));
   };
 
   return (
@@ -163,49 +140,34 @@ const Screen: FC<ScreenProps> = ({ children, ...props }) => {
   return (
     <>
       <div className="screen">
-        <Image
-          src="/images/wave_background.jpg"
-          fill
-          style={{
-            objectFit: 'cover',
-            zIndex: 0,
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-          }}
-          alt="background"
-        />
-
-        <DndContext
+        {/* <DndContext
           onDragEnd={(event) => {
             console.log('end', event.over);
             if (event.over && event.over.id === 'droppable') {
               console.log('Dropped', event);
             }
           }}
-        >
-          <Box />
+        > */}
+        {/* <Box /> */}
 
-          {/* <Cell /> */}
+        {/* <Cell /> */}
 
-          <div
+        {/* <div
             className="children"
             style={{
               gridTemplateColumns: `repeat(${gridSpaces.gridColumn}, 48px)`,
               gridTemplateRows: `repeat(${gridSpaces.gridRows}, 48px)`,
             }}
-          >
-            {/* {Array.from({
+          > */}
+        {/* {Array.from({
               length: gridSpaces.gridColumn * gridSpaces.gridRows,
             }).map((cell, index) => {
               return <Cell id={String(index)} key={index} />;
             })} */}
-          </div>
+        {/* </div> */}
 
-          {/* {children} */}
-        </DndContext>
+        {children}
+        {/* </DndContext> */}
 
         <Taskbar />
       </div>
@@ -214,6 +176,9 @@ const Screen: FC<ScreenProps> = ({ children, ...props }) => {
         .screen {
           width: 100%;
           height: 100%;
+          background-image: url('/images/wave_background.jpg');
+          background-position: 50%;
+          background-repeat: no-repeat;
         }
 
         .cells {

@@ -4,13 +4,16 @@ import SlackIcon from '../lib/components/AppIcons/SlackIcon';
 import AppTile from '../lib/components/AppTile/AppTile';
 import { DndContext } from '@dnd-kit/core';
 import { useState } from 'react';
+import Terminal from '../lib/components/Terminal/Terminal';
 
 export function Index() {
 
   return (
     <>
         <Screen>
-          <AppTile icon={<SlackIcon />} />
+          {/* <AppTile icon={<SlackIcon />} /> */}
+
+          <Terminal />
         </Screen>
 
       <style jsx>{`
