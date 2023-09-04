@@ -13,18 +13,20 @@ import {
 interface FileSystemContextValue
   extends Pick<
     Drive,
-    | 'addFile'
-    | 'addFolder'
-    | 'deleteFolder'
-    | 'findFile'
-    | 'driveName'
-    | 'deleteFile'
     | 'findFileByPath'
-    | 'findFolder'
+    | 'children'
+    | 'addFolder'
+    | 'createdDate'
+    | 'delete'
+    | 'driveName'
     | 'findFolderByPath'
-    | 'items'
+    | 'getPathPart'
+    | 'name'
+    | 'path'
     | 'on'
-  > {}
+  > {
+  drive: Drive;
+}
 
 const emptyFunction = () => null;
 
@@ -40,9 +42,15 @@ const adam = new Folder({ name: 'Adam' });
 const code = new Folder({ name: 'Code' });
 const personalProjects = new Folder({ name: 'Personal Projects' });
 const ideaProjects = new Folder({ name: 'Idea Projects' });
+const clientProjects = new Folder({ name: 'Client Projects' });
+const testingProjects = new Folder({ name: 'Testing Projects' });
+const npmPackages = new Folder({ name: 'NPM Packages' });
 users.addItem(adam);
 adam.addItem(code);
 code.addItem(personalProjects);
+code.addItem(clientProjects);
+code.addItem(testingProjects);
+code.addItem(npmPackages);
 code.addItem(ideaProjects);
 
 const downloads = new Folder({ name: 'Downloads' });
@@ -53,10 +61,16 @@ downloads.addItem(wordFile);
 
 drive.addFolder(users);
 drive.addFolder(downloads);
+drive.addFolder(new Folder({ name: 'Documents' }));
+drive.addFolder(new Folder({ name: 'Pictures' }));
+drive.addFolder(new Folder({ name: 'Keys' }));
+drive.addFolder(new Folder({ name: 'Music' }));
+drive.addFolder(new Folder({ name: 'Videos' }));
+drive.addFolder(new Folder({ name: 'Oases Exports' }));
+drive.addFolder(new Folder({ name: 'Contacts' }));
 
 const result = drive.findFolderByPath('./Code', { folder: adam });
 console.log(result?.name);
-
 
 export const FileSystemProvider: FC<FileSystemProviderProps> = ({
   children,
@@ -70,29 +84,30 @@ export const FileSystemProvider: FC<FileSystemProviderProps> = ({
     const subscription = fileSystem.on(() => {
       setVersion((version) => version + 1);
 
-      console.log(fileSystem);
+      console.log('File system updated');
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [fileSystem]);
 
   return (
     <>
       <FileSystemContext.Provider
         value={{
-          addFile: fileSystem.addFile.bind(fileSystem),
+          name: fileSystem.name,
+          createdDate: fileSystem.createdDate,
+          delete: fileSystem.delete,
+          getPathPart: fileSystem.getPathPart,
+          path: fileSystem.path,
           addFolder: fileSystem.addFolder.bind(fileSystem),
-          deleteFile: fileSystem.deleteFile.bind(fileSystem),
-          deleteFolder: fileSystem.deleteFile.bind(fileSystem),
-          findFile: fileSystem.findFile.bind(fileSystem),
           findFileByPath: fileSystem.findFileByPath.bind(fileSystem),
-          findFolder: fileSystem.findFolder.bind(fileSystem),
           driveName: fileSystem.driveName,
-          items: fileSystem.items,
+          children: fileSystem.children,
           findFolderByPath: fileSystem.findFolderByPath.bind(fileSystem),
           on: fileSystem.on.bind(fileSystem),
+          drive: fileSystem,
         }}
       >
         {children}

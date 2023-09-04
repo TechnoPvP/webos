@@ -1,18 +1,18 @@
 import { Subject, BehaviorSubject } from 'rxjs';
 import { FileNotFoundError } from './errors/errors';
 
-export type FileSystemItemType = 'folder' | 'file';
+export type FileSystemItemType = 'folder' | 'file' | 'drive';
 
 export abstract class FileSystemItem {
   abstract path: string;
   abstract type: FileSystemItemType;
+  abstract parent?: FileSystemItem;
   abstract createdDate?: Date;
   abstract name: string;
   abstract delete(): void;
 }
 
 export class BaseFileItem {
-  readonly items: FileSystemItem[] = [];
   readonly subject = new Subject();
   public renderCount = 0;
 
@@ -32,6 +32,7 @@ export class File extends BaseFileItem implements FileSystemItem {
   name: string;
   path!: string;
   type!: FileSystemItemType;
+  parent!: FileSystemItem;
   createdDate?: Date | undefined;
 
   constructor(params: { name: string }) {
@@ -51,25 +52,43 @@ export interface FolderParams {
 
 export class Folder extends BaseFileItem implements FileSystemItem {
   public children: FileSystemItem[] = [];
+  public parent?: FileSystemItem;
 
   name: string;
   path: string;
   type!: FileSystemItemType;
-  createdDate?: Date | undefined;
+  createdDate!: Date;
+  modifiedDate!: Date;
 
-  constructor(readonly params: FolderParams) {
+  constructor(params: FolderParams) {
     super();
 
     this.name = params.name;
     this.path = '';
     this.type = 'folder';
+    this.createdDate = new Date()
+    this.modifiedDate = new Date()
   }
 
   addItem(item: FileSystemItem) {
+    item.parent = this;
     this.children.push(item);
-    this.update(item)
+    this.update(item);
 
     return item;
+  }
+
+  getPath() {
+    const parts: string[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let current: FileSystemItem | undefined = this;
+
+    while (current) {
+      if (current?.name) parts.push(current?.name);
+      current = current.parent;
+    }
+
+    return parts.reverse().join('/');
   }
 
   delete(): void {
@@ -77,13 +96,36 @@ export class Folder extends BaseFileItem implements FileSystemItem {
   }
 }
 
-export class Drive extends BaseFileItem {
+export class Drive extends BaseFileItem implements FileSystemItem, Folder {
   driveName!: string;
+  children: FileSystemItem[] = [];
+  parent?: FileSystemItem = undefined;
+  name!: string;
+  path!: string;
+  type!: FileSystemItemType;
+  createdDate!: Date;
+  modifiedDate!: Date;
+
+  delete(): void {
+    throw new Error('Method not implemented.');
+  }
 
   constructor(params: { driveName: string }) {
     super();
 
-    this.driveName = params.driveName;
+    this.name = `${params.driveName}:`;
+    this.driveName = `${params.driveName}:`;
+    this.type = 'drive';
+    this.path = 'C:';
+    this.createdDate = new Date();
+  }
+
+  addItem(item: FileSystemItem): FileSystemItem {
+    throw new Error('Method not implemented.');
+  }
+
+  getPath(): string {
+    throw new Error('Method not implemented.');
   }
 
   getPathPart(path: string) {
@@ -104,7 +146,7 @@ export class Drive extends BaseFileItem {
 
     let queue: FileSystemItem[] =
       isRootSearch || !params?.folder
-        ? [...this.items]
+        ? [...this.children]
         : [...params.folder.children];
     let depth = 0;
 
@@ -131,7 +173,7 @@ export class Drive extends BaseFileItem {
 
     let queue: FileSystemItem[] =
       isRootSearch || !params?.folder
-        ? [...this.items]
+        ? [...this.children]
         : [...params.folder.children];
     let depth = 0;
 
@@ -154,25 +196,10 @@ export class Drive extends BaseFileItem {
   }
 
   addFolder(folder: Folder, path?: string) {
-    this.items.push(folder);
+    folder.parent = this;
+    this.children.push(folder);
     this.update(folder);
     return;
-  }
-
-  findFile() {
-    throw new Error('Unimplemented');
-  }
-  findFolder() {
-    throw new Error('Unimplemented');
-  }
-  addFile(file: File) {
-    throw new Error('Unimplemented');
-  }
-  deleteFile() {
-    throw new Error('Unimplemented');
-  }
-  deleteFolder(folder: Folder) {
-    throw new Error('Unimplemented');
   }
 }
 
